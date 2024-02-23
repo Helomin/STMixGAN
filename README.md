@@ -5,7 +5,7 @@ Both the generator STMixNet and the discriminator are stored in the file model/S
 The network is trained to be a predictive model that can infer the next ten frames from the first five frames, i.e., the first half hour is used as input to predict the distribution of the next hour.
 STMixGAN consists of two components: the generator is a spatiotemporal mixed coding network (STMixNet), and the dual-channel network (DCNet) serves as a discriminator. The STMixNet is based on the whole echo evolution process and extracts global to local multi-scale features by capturing the spatiotemporal correlation of the radar echo context, which is useful to help avoid regression to the mean and blurring effects. DCNet guides the training of STMixNet by recognizing that the predictions are false, and the ground truth is true, to make its predictions more realistic.
 
-# South China Radar Dataset
+# Radar Data
 The experimental data is the radar mosaic of the South China area provided by the Guangdong Meteorological Bureau. It does not support open sharing. For data access, please contact Kun Zheng (ZhengK@cug.edu.cn) and Long He (Helomin@cug.edu.cn).
 
 # STMixNet
