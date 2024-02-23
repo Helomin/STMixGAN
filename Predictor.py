@@ -78,10 +78,10 @@ class Predictor:
             pred_imgs = torch.cat(output, dim=0)
 
         end = time()
-        print("预测时间：{:.0f}分 {:.1f}秒".format(
+        print("Forecasting Time Consumption：{:.0f}min {:.1f}s".format(
             (end - start) // 60, (end - start) % 60))
 
-        # 雷达预测评判指标计算
+        # Calculation of the radar prediction judgement indicator
         mae_s, mse_s, mssim_s, psnr_s = ed_cal_mse_ssim(groundtruth, pred_imgs)
         print(f"STMixNet_{self.args.epoch_weight}:")
         print(groundtruth.min(), groundtruth.max())
@@ -91,7 +91,7 @@ class Predictor:
         print(f"MSSIM: {mssim_s}")
         print(f"PSNR: {psnr_s}")
 
-        # 保存指标
+        # Preservation indicators
         score_save_path = (
             f"{self.args.metric_dir}/STMixNet_{self.args.epoch_weight}.txt")
         save_score(groundtruth, pred_imgs, score_save_path, self.evaluator)
@@ -100,7 +100,7 @@ class Predictor:
 if __name__ == '__main__':
     args = create_parser().parse_args()
 
-    # 预测
+    # predict
     predictor = Predictor(args)
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>预测开始<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>Start of forecasting<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
     predictor.predict()
