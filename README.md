@@ -23,7 +23,9 @@ title={GAN–argcPredNet v1.0: a generative adversarial model for radar echo ext
 author={Kun Zheng, Yan Liu, Jinbiao Zhang, Cong Luo, Siyu Tang, Huihua Ruan, Qiya Tan, Yunlei Yi, and Xiutao Ran},
 journal={GMD, 15, 1467–1475, 2022},
 year={2022}
+
 AND
+
 @article{QiyaTan/GAN-argcPredNet-v2.0,
 title={GAN-argcPredNet v2.0: a radar echo extrapolation model based on spatiotemporal process enhancement
 author={Kun Zheng, Qiya Tan, Huihua Ruan, Jinbiao Zhang, Cong Luo, Siyu Tang, Yunlei Yi, Yugang Tian, and Jianmei Cheng},
