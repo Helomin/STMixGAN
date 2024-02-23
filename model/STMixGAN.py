@@ -379,7 +379,7 @@ class Out(nn.Module):
         
 
 class STMixNet(nn.Module):
-    def __init__(self, in_channels=4, out_channels=1):
+    def __init__(self, in_channels=5, out_channels=1):
         super().__init__()
 
         self.transformer = SwinTransformer(in_channels=in_channels, embed_dim=96, depths=[2, 2, 6, 2], num_heads=[3, 6, 12, 24])
