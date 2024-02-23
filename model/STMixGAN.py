@@ -406,7 +406,6 @@ class STMixNet(nn.Module):
         self.out = Out(96, out_channels) 
 
     def forward(self, x):
-        x = x[:, :3]
         x = x.type(torch.cuda.FloatTensor)
         b, t, c, h, w = x.shape
         x = torch.reshape(x, [b, t*c, h, w])
