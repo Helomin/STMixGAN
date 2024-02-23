@@ -67,7 +67,7 @@ class Trainer:
         critic_loss = torch.zeros(1)
         for epoch in range(self.total_epochs):
             pbar = tqdm(total=len(self.train_loader), desc=f'Epoch {epoch + 1}/{self.total_epochs}', postfix=dict,
-                        mininterval=0.3)  # 设置当前epoch显示进度
+                        mininterval=0.3)  # Setting the current epoch display progress
 
             for (itr, train_imgs) in enumerate(self.train_loader):
                 train_imgs = train_imgs.type(torch.cuda.FloatTensor)
@@ -106,7 +106,7 @@ class Trainer:
                     **{'gen_loss': gen_loss.item(), 'critic_loss': critic_loss.item()})
                 pbar.update(1)
 
-            pbar.close()  # 关闭当前epoch显示进度
+            pbar.close()  # Turn off the current epoch display progress
 
             if (epoch+1) % 5 == 0:
                 torch.save(self.gen.state_dict(),
@@ -118,7 +118,7 @@ class Trainer:
 if __name__ == '__main__':
     args = create_parser().parse_args()
 
-    # 训练
+    # train
     trainer = Trainer(args)
-    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>训练开始<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
+    print('>>>>>>>>>>>>>>>>>>>>>>>>>>>Start of training<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<')
     trainer.train()
