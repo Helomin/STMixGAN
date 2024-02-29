@@ -32,24 +32,24 @@ loss.py contains the loss function needed for our model.
 You can cite the STMixGAN model repository as follows: https://github.com/Helomin/STMixGAN
 
 # Reference
-@article{LukaDoncic0/GAN-argcPredNet,
+@article{gmd-15-1467-2022,
 
-title={GAN–argcPredNet v1.0: a generative adversarial model for radar echo extrapolation based on convolutional recurrent units
+title={GAN–argcPredNet v1.0: a generative adversarial model for radar echo extrapolation based on convolutional recurrent units},
 
 author={Kun Zheng, Yan Liu, Jinbiao Zhang, Cong Luo, Siyu Tang, Huihua Ruan, Qiya Tan, Yunlei Yi, and Xiutao Ran},
 
-journal={GMD, 15, 1467–1475, 2022},
+journal={Geoscientific Model Development},
 
 year={2022}
 
 AND
 
-@article{QiyaTan/GAN-argcPredNet-v2.0,
+@article{gmd-17-399-2024,
 
-title={GAN-argcPredNet v2.0: a radar echo extrapolation model based on spatiotemporal process enhancement
+title={GAN-argcPredNet v2.0: a radar echo extrapolation model based on spatiotemporal process enhancement},
 
 author={Kun Zheng, Qiya Tan, Huihua Ruan, Jinbiao Zhang, Cong Luo, Siyu Tang, Yunlei Yi, Yugang Tian, and Jianmei Cheng},
 
-journal={GMD, 17, 399–413, 2024},
+journal={Geoscientific Model Development},
 
 year={2024}
