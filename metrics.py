@@ -1,5 +1,8 @@
 import torch
 import numpy as np
+import properscoring as ps
+from scipy.stats import norm
+from pysteps.verification.spatialscores import fss
 from skimage.metrics import structural_similarity as SSIM
 from skimage.metrics import peak_signal_noise_ratio as PSNR
 
@@ -109,6 +112,26 @@ class Evaluator:
             Dr = self.cal_Dr(pred=pred, target=target, th=th, TP=TP, TN=TN, FP=FP, FN=FN)
         return (TP - Dr) / (TP + FN + FP - Dr)
 
+    def cal_CRPS(self, pred=None, target=None, scale=None):
+        target_cdf = norm.cdf(x=target.cpu().detach().numpy(), loc=0, scale=scale)
+        pred_cdf = norm.cdf(x=pred.cpu().detach().numpy(), loc=0, scale=scale)
+        forecast_score = ps.crps_ensemble(target_cdf, pred_cdf).mean(axis=(0, -1, -2))
+        return forecast_score
+
+    def cal_FSS(self, pred=None, target=None, threshold=None, scale=None):
+        fss_score = []
+        for frame in range(target.shape[0]):
+            fra_score = 0.0
+            count = 0
+            for j in range(target.shape[1]):
+                if np.any(target[frame, j] > threshold):
+                    count +=1
+                    fra_score += fss(pred[frame, j], target[frame, j], threshold, scale)
+            if count != 0:
+                fra_score = fra_score / count
+            fss_score.append(fra_score)
+        return np.array(fss_score)
+
     def cal_score(self, pred, target):
         if torch.is_tensor(pred):
             pred = pred.detach()
@@ -124,11 +147,18 @@ class Evaluator:
         if isinstance(target, torch.Tensor):
             target = torch.nan_to_num(target, nan=0)
         
+        pooled_crps = []
+        for scale in self.scales:
+            pooled_crps.append(
+                self.cal_CRPS(
+                    F.avg_pool2d(pred, kernel_size=scale), F.avg_pool2d(target, kernel_size=scale), scale=scale))
+        
+        ets = []
         pod = []
         far = []
         csi = []
         hss = []
-        ets = []
+        bias = []
 
         for th in self.pixel_thresholds:
             TP = self.cal_TP(pred=pred, target=target, th=th)
@@ -136,17 +166,29 @@ class Evaluator:
             FP = self.cal_FP(pred=pred, target=target, th=th)
             FN = self.cal_FN(pred=pred, target=target, th=th)
             Dr = self.cal_Dr(pred=pred, target=target, th=th, TP=TP, TN=TN, FP=FP, FN=FN)
-  
+            ets.append(self.cal_ETS(TP=TP, TN=TN, FP=FP, FN=FN, Dr=Dr))
             pod.append(self.cal_POD(TP=TP, FN=FN))
             far.append(self.cal_FAR(TP=TP, FP=FP))
             csi.append(self.cal_CSI(TP=TP, FP=FP, FN=FN))
             hss.append(self.cal_HSS(TP=TP, TN=TN, FP=FP, FN=FN))
-            ets.append(self.cal_ETS(TP=TP, TN=TN, FP=FP, FN=FN, Dr=Dr))
+            bias.append(self.cal_Bias(TP=TP, TN=TN, FP=FP, FN=FN))
 
+        ets = torch.stack(ets)
         pod = torch.stack(pod)
         far = torch.stack(far)
         csi = torch.stack(csi)
         hss = torch.stack(hss)
-        ets = torch.stack(ets)
+        bias = torch.stack(bias)
+        pooled_crps = np.array(pooled_crps)
+        
+        target = target.permute(1, 0, 2, 3)
+        pred = pred.permute(1, 0, 2, 3)
+        target = target.cpu().detach().numpy()
+        pred = pred.cpu().detach().numpy()
+        sum_fss = []
+        for th in self.pixel_thresholds:
+            scale_fss = [self.cal_FSS(pred, target, th, scale) for scale in [1, 4, 16, 32]]
+            sum_fss.append(np.array(scale_fss))
+        sum_fss = np.array(sum_fss)
 
-        return ets, pod, far, csi, hss
+        return ets, pod, far, csi, hss, bias, pooled_crps, sum_fss
