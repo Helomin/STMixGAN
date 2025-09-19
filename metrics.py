@@ -32,11 +32,47 @@ def cal_image_metrics(target_imgs, pred_images):
     psnr_s = psnr_s / target_imgs.shape[0] / target_imgs.shape[1]
     
     return mae_s, mse_s, ssim_s, psnr_s
-    
 
+def save_score(test_images, pred_images, save_file, evaluator):
+    test_images = test_images[:, 5:, 0]
+    pred_images = pred_images[:, 5:, 0]
+    ets, pod, far, csi, hss, bias, pooled_crps, sum_fss = evaluator.cal_score(pred_images, test_images)
+    with open(save_file, 'w') as f:
+        for (i, threshold) in enumerate(evaluator.rainfall_thresholds):
+            f.write("Threshold = %g:\n" % threshold)
+            f.write("   ETS=%s\n" % str(list(ets[i, :].tolist())))
+            f.write("   POD=%s\n" % str(list(pod[i, :].tolist())))
+            f.write("   FAR=%s\n" % str(list(far[i, :].tolist())))
+            f.write("   CSI=%s\n" % str(list(csi[i, :].tolist())))
+            f.write("   HSS=%s\n" % str(list(hss[i, :].tolist())))
+            f.write("   Bias=%s\n" % str(list(bias[i, :].tolist())))
+            f.write("   ETS stat: avg %g/final %g\n" %
+                    (torch.mean(ets[i, :]), ets[i, -1].item()))
+            f.write("   POD stat: avg %g/final %g\n" %
+                    (torch.mean(pod[i, :]), pod[i, -1].item()))
+            f.write("   FAR stat: avg %g/final %g\n" %
+                    (torch.mean(far[i, :]), far[i, -1].item()))
+            f.write("   CSI stat: avg %g/final %g\n" %
+                    (torch.mean(csi[i, :]), csi[i, -1].item()))
+            f.write("   HSS stat: avg %g/final %g\n" %
+                    (torch.mean(hss[i, :]), hss[i, -1].item()))
+            f.write("   Bias stat: avg %g/final %g\n" %
+                    (torch.mean(bias[i, :]), bias[i, -1].item()))
+        
+        for (i, threshold) in enumerate([1, 2, 4, 8]):
+             f.write("Scale = %g:\n" % threshold)
+             f.write("   Pooled_CRPS=%s\n" % str(list(pooled_crps[i, :].tolist())))
+
+        for (i, threshold) in enumerate(evaluator.rainfall_thresholds):
+            for (j, scale) in enumerate([1, 4, 16, 32]):
+                f.write("Threshold = %g:\n" % threshold)
+                f.write("   Scale = %g:\n" % scale)
+                f.write("       Fss=%s\n" % str(list(sum_fss[i, j].tolist())))
+    
 class Evaluator:
     def __init__(self, pixel_thresholds: list = None):
         self.pixel_thresholds = pixel_thresholds
+        self.scales = [1, 2, 4, 8]
 
     def cal_TP(self, pred=None, target=None, th=None):
         return (torch.where(torch.logical_and(pred >= th, target >= th), 1, 0).sum(dim=(-1, -2))).sum(dim=0)
@@ -192,3 +228,4 @@ class Evaluator:
         sum_fss = np.array(sum_fss)
 
         return ets, pod, far, csi, hss, bias, pooled_crps, sum_fss
+
